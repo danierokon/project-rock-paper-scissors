@@ -7,6 +7,11 @@
 		<title>Document</title>
 	</head>
 	<body>
+		<button class="button" name="rock">rock</button>
+		<button class="button" name="paper">paper</button>
+		<button class="button" name="scissors">scissors</button>
+		<div id="container"></div>
+
 		<script>
 			//roll a number, divided into 3 ranges
 			function getComputerChoice() {
@@ -22,73 +27,80 @@
 			}
 
 			// divided into 3 cases, tie/win/lose
+			let win = 0,
+				lose = 0,
+				tie = 0;
 			function playRound(playerSelection, computerSelection) {
 				console.log(`You picked ${playerSelection} `);
 				console.log(`Your opponent picked ${computerSelection}`);
 				if (playerSelection === computerSelection) {
 					console.log("A TIE!");
-					return "TIE";
+					tie += 1;
+					update(playerSelection, computerSelection, 'A TIE!');
 				} else if (
 					(playerSelection === "rock" && computerSelection === "scissors") ||
 					(playerSelection === "paper" && computerSelection === "rock") ||
 					(playerSelection === "scissors" && computerSelection === "paper")
 				) {
 					console.log(`You win!`);
-					return "WIN";
+					win += 1;
+					update(playerSelection, computerSelection, 'You win!');
 				} else if (
 					(playerSelection === "rock" && computerSelection === "paper") ||
 					(playerSelection === "paper" && computerSelection === "scissors") ||
 					(playerSelection === "scissors" && computerSelection === "rock")
 				) {
 					console.log(`You lose!`);
-					return "LOSE";
+					lose += 1;
+					update(playerSelection, computerSelection, 'You lose!');
 				}
+				announceWinner();
 			}
-			//check if input is either rock/paper/scissors, stuck
-			//in while loop until input is valid
 			let playerSelection;
-			function inputCheck(inputCheck = false) {
-				while (inputCheck === false) {
-					if (
-						playerSelection === "rock" ||
-						playerSelection === "paper" ||
-						playerSelection === "scissors"
-					) {
-						return true;
-					} else {
-						alert("Only accept rock, paper or scissors as input!");
-						playerSelection = prompt("rock paper or scissors?").toLowerCase();
-					}
+
+			//note to self: for some reason simply using playRound with argument doesn't work
+			//need to do () => myFunction(...args)	???
+			const buttons = document.querySelectorAll('.button');		
+			for(button of buttons)	{
+			const name = button.name;
+			button.addEventListener('click', () => playRound(name, getComputerChoice()));			
+			}			
+
+			const container = document.querySelector('#container');
+			const match = document.createElement('p');
+			const result1 = document.createElement('div');
+			const result2 = document.createElement('div');
+			const result3 = document.createElement('div');
+
+			function update(playerSelection, computerSelection, matchResult){
+			match.innerText = `You picked ${playerSelection} `+ `\n` + `Computer picked ${computerSelection}` 
+								+`\n` + `${matchResult}`;
+								
+			result1.textContent = `Player win count : ${win}`;
+			result2.textContent = `Opponent win count : ${lose}`;
+			result3.textContent = `Tie count : ${tie}`;
+			};
+			
+			
+			container.appendChild(result1);
+			container.appendChild(result2);
+			container.appendChild(result3);
+			container.appendChild(match);
+			
+			//initialize
+			update('', '', '');
+
+			function announceWinner(){
+				
+				if (win === 5){
+					//clear match info
+					match.innerText = `You scored 5 points before your opponent does!` + `\n` + `YOU WIN!`;
+					for(button of buttons){button.setAttribute('disabled', true)};
+				}else if(lose === 5){
+					match.innerText = `Your opponent scored 5 points before you do!` + `\n` + `YOU LOSE!`;
+					for(button of buttons){button.setAttribute('disabled', true)};
 				}
 			}
-			//for loop for 5 rounds of games
-			//record result returned by function playRound()
-			//when for loop is done, display result
-			function game() {
-				let win = 0;
-				let lose = 0;
-				let tie = 0;
-				for (let i = 0; i < 5; i++) {
-					playerSelection = prompt("rock paper or scissors?").toLowerCase();
-					inputCheck();
-
-					const computerSelection = getComputerChoice();
-					console.log(`Game ${i + 1}`);
-					const result = playRound(playerSelection, computerSelection);
-					if (result === "TIE") {
-						tie += 1;
-					} else if (result === "WIN") {
-						win += 1;
-					} else {
-						lose += 1;
-					}
-				}
-				console.log(
-					`Final result : ${win} win(s), ${lose} loss(es), ${tie} tie(s), GG`
-				);
-			}
-
-			game();
 		</script>
 	</body>
 </html>
